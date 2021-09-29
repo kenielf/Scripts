@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Terminates already running dunst instances
+killall -q dunst
+
+# Wait until all the processes are dead
+while pgrep -x dunst >/dev/null; do sleep 1; done
+
+# Launch dunst
+dunst &
+
+exit 0

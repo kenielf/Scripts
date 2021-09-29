@@ -1,0 +1,15 @@
+#!/bin/sh
+# Input State for Polybar - Using FCITX5 and qdbus from qt5-tools
+# use the regex "/(?<=%\{F#eceff4\})([\w-]+)/g" to grab only the state
+
+# Use this for FCITX5
+INPUT=$(qdbus "org.fcitx.Fcitx5" "/controller" "org.fcitx.Fcitx.Controller1.CurrentInputMethod")
+
+if [[ "$INPUT" == "keyboard-br" ]]; then
+	echo "%{F#eceff4}PT-BR%{F-}"
+elif [[ "$INPUT" == "mozc" ]]; then
+	echo "%{F#eceff4}日本語%{F-}"
+elif [[ "$INPUT" == "" ]]; then
+	echo "%{F#434c5e}INACT%{F-}"
+fi
+

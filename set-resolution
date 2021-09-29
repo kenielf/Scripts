@@ -1,0 +1,13 @@
+#!/bin/bash
+# This finds the active monitor and changes its resolution.
+
+
+ACTIVE=$(xrandr --verbose | grep -oP "([\w-]+)(?=\sconnected\sprimary)")
+RES="1024x768"
+SCALING="Full"
+
+xrandr --output $ACTIVE --set "scaling mode" "$SCALING" --mode $RES
+notify-send -t 2000 "Resolution" "Changed $ACTIVE's resolution to $RES"
+
+# Returns success to avoid LightDM issues
+exit 0

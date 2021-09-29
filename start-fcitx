@@ -1,0 +1,10 @@
+!#/usr/bin/env sh
+
+# Terminates already running fcitx5 instances
+killall -q fcitx5
+
+while pgrep -x fcitx5 >/dev/null; do sleep 1; done
+
+# Launch fcitx5
+fcitx5 -d -s 1 &
+

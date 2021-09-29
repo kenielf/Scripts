@@ -1,0 +1,31 @@
+#!/bin/bash
+#  ______   ___     ____
+# / ___\ \ / / |   / ___|
+# \___ \\ V /| |  | |
+#  ___) || | | |__| |___
+# |____/ |_| |_____\____|
+# 
+# Kenielf's Smart Youtube Link Copier.
+# Default Requirements: mpv, xclip, xdotool, ps, notify-send and GNU/grep
+
+PLAYER="mpv"
+SELECTION=$(xclip -o selection clipboard | sed -e 's/^/\"/g' -e 's/$/\"/g')
+WINDOW=$(ps -e | grep $(xdotool getwindowpid $(xdotool getwindowfocus)) | grep -v grep)
+
+if [[ "$SELECTION" =~ "youtube" || "$SELECTION" =~ "twitch" ]]; then
+	LINK=$(echo $SELECTION | sed -e 's/"//g')
+	mpv "$LINK" &
+	notify-send -t 2000 "Playing:" "$LINK"
+elif [[ "$WINDOW" =~ "firefox" ]]; then
+	sleep 2
+	xdotool getactivewindow key ctrl+l sleep 2 key ctrl+c key F6
+	sleep 2
+	$PLAYER "$(xclip -o selection clipboard)" &
+	notify-send -t 2000 "Playing:" "$(xclip -o selection clipboard)"
+else
+	echo "Your clipboard can't be processed."
+	notify-send -t 2000 "Error" "Can't play the link:\n$SELECTION"
+fi
+
+exit 0
+

@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Terminates already running picom instances
+killall -q picom
+
+# Wait until all the processes are dead
+while pgrep -x picom >/dev/null; do sleep 1; done
+
+# Launch picom
+picom --backend glx --vsync --experimental-backends &
+
+exit 0

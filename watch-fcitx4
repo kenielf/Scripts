@@ -1,0 +1,11 @@
+#!/bin/sh
+# Input State for Polybar - Using FCITX4 and qdbus from qt5-tools
+
+# Use this for FCITX4
+INPUT=$(qdbus "org.fcitx.Fcitx" "/inputmethod" "GetCurrentIM")
+if [ "$INPUT" = "fcitx-keyboard-br" ]; then
+ 	echo "PT-BR"
+elif [ "$INPUT" = "mozc" ]; then
+	echo "日本語"
+fi
+

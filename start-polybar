@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Terminates already running polybar instances
+killall -q polybar
+
+# Wait until all the processes are dead
+while pgrep -x polybar >/dev/null; do sleep 1; done
+
+# Launch polybar
+polybar main
+
+exit 0

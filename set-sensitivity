@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# This should be your mouse, you can see yours with the command
+# $ xinput --list --name-only
+MOUSE="Logitech G403 Prodigy Gaming Mouse"
+
+# Attribute, this can be seen with the command, and is usually the default one.
+# xinput --list-props "MOUSE"
+ATTR="libinput Accel Speed"
+
+# Sensitivity
+SENS=-0.7
+
+xinput --set-prop "$MOUSE" "$ATTR" $SENS
+
