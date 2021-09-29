@@ -11,8 +11,8 @@ A customized youtube-dl command script that saves to a specific folder and sends
 ## fix-capslock
 Fixes a delay on some machines in regards to the caps lock key.
 
-## set scripts
-Simple scripts for working environment setup, names are self explanatory.
+## set prefix
+Every script prefixed by set will run few commands in order to setup a working environment
 
 ## start prefix
 Every script prefixed by start will start a service or kill it and restart it, should be used for single instance processes.
