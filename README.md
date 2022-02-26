@@ -1,6 +1,16 @@
 # Scripts
 A collection of scripts of varying complexity for usage in my Linux environment.
 
+# Installation
+First clone the repository to your preferred location
+```
+git clone "https://github.com/kenielf/scripts.git" ~/.scripts
+```
+And extend your path to include the "src" folder
+```
+export PATH="$PATH:/home/$(whoami)/.scripts/src"
+```
+
 # List
  - create-repo
 
