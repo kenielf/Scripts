@@ -1,0 +1,19 @@
+#!/bin/sh
+# Simple script to create common folders and files for repositories.
+###--- PREPARE ---###
+printf "Creating files..."
+cur_path=$(pwd)
+repo_name=$(echo "$cur_path" | grep -oP '([\d\w_-]+)$')
+
+###--- DIRECTORIES AND FILES ---###
+[ ! -d "$cur_path/img" ] && mkdir -p "$cur_path/img"
+[ ! -d "$cur_path/doc" ] && mkdir -p "$cur_path/doc"
+[ ! -d "$cur_path/src" ] && mkdir -p "$cur_path/src"
+[ ! -f "$cur_path/README.md" ] && printf "# $repo_name" >> "$cur_path/README.md"
+[ ! -f "$cur_path/CONTRIBUTING.md" ] && printf "# Contributing to $repo_name" >> "$cur_path/CONTRIBUTING.md"
+
+###--- GIT ---###
+[ ! -d "$cur_path/.git" ] && git init && touch .gitignore
+###--- OUTPUT ---###
+sleep 0.5
+printf "\rFiles have been created successfully.\n"
