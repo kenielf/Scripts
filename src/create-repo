@@ -14,6 +14,7 @@ repo_name=$(echo "$cur_path" | grep -oP '([\d\w_-]+)$')
 
 ###--- GIT ---###
 [ ! -d "$cur_path/.git" ] && git init && touch .gitignore
+
 ###--- OUTPUT ---###
 sleep 0.5
 printf "\rFiles have been created successfully.\n"
