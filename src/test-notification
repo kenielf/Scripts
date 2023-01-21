@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
 # vi: ft=sh
 # shellcheck disable=SC2086 # NOTE: Intentional word splitting
+# Usage: test-notification
 
 # Check for dependencies
-ksdeps "notify-send"
+ksdeps "notify-send" || exit "${?}"
 
 # Get the icons directory
 icons_dir="/usr/share/icons/hicolor/64x64/stock/"
