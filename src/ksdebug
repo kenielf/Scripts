@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# vi: ft=sh
+# Usage: kdebug "section: message"
+
+# Check mandatory env variable
+if [ "${DEBUG}" = "1" ]; then
+    # Check mandatory first argument (debug message)
+    if [ -z "${1}" ]; then
+        kserr "syntax: debug message must not be empty!" "1" || exit "${?}"
+    fi
+
+    # Print debug message
+    printf "\e[33m[DEBUG]\e[00m %b\n" "${1}"
+fi
