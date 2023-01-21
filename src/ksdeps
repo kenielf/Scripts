@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+# vi: ft=sh
+# Usage: ksdeps "program1 program2 program3"
+# to make a missing dependency a fatal error, add: || exit "${?}"
+
+# Check mandatory first argument (dependencies list)
+if [ -z "${1}" ]; then
+    kserr "syntax: dependency list must not be empty!" "1" || exit "${?}"
+fi
+
+# Go through each dependency
+for program in ${1}; do
+    # Check if they exist
+    if ! (command -v "${program}" >/dev/null 2>&1); then
+        ksdebug "prog: missing '\e[34m${program}\e[00m'"
+        if [ -z "${missing}" ]; then
+            missing="${program}"
+        else
+            missing="${missing}\e[31m,\e[00m ${program}"
+        fi
+    else
+        ksdebug "prog: found '\e[34m${program}\e[00m'"
+    fi
+
+done
+
+# Terminate with an error if any program was found missing
+if [ -n "${missing}" ]; then
+    kserr "dependencies: missing \e[31m{\e[00m${missing}\e[31m}\e[00m" "1" || exit "${?}"
+else
+    ksdebug "dependencies: all programs \e[32mfound\e[00m!"
+fi
+
