@@ -29,18 +29,24 @@ else
 fi
 
 # Check for acceptable networks
-cur_network="$(nmcli -t -f NAME c s -a 2>/dev/null)" || \
-    kserr "network: failed to get current network!"
-ksdebug "network: trying to match SSIDs to '${cur_network}'"
-for ssid in ${allowed_ssids}; do
-    if [ "${cur_network}" = "${ssid}" ]; then
-        ksdebug "network: matched SSIDs successfully"
-        ssid_matched="1"
+cur_networks="$(nmcli -t -f NAME c s -a 2>/dev/null)" || \
+    kserr "network: failed to get current active networks!" "1" || exit "${?}"
+
+for network in ${cur_networks}; do
+    ksdebug "network: trying to match SSIDs to '${network}'"
+    for ssid in ${allowed_ssids}; do
+        if [ "${network}" = "${ssid}" ]; then
+            ksdebug "network: matched SSIDs successfully"
+            ssid_matched="1"
+        fi
+    done
+    if [ "${ssid_matched}" = "1" ]; then
+        break
     fi
 done
 
 if [ -z "${ssid_matched}" ]; then
-    kserr "network: failed to match ssid, exiting!"
+    kserr "network: failed to match ssid, exiting!" || exit "${?}"
 fi
 
 # Check if ip address is reachable
