@@ -61,17 +61,16 @@ else
     ksdebug "ip: successfully reached '${homelab_addrs}'"
 fi
 
-# Mount homelab share
-if ! gio info "smb://${homelab_addrs}/${homelab_share}" >/dev/null 2>&1; then
-    for share in ${homelab_share}; do
+# Mount homelab shares
+for share in ${homelab_share}; do
+    if ! gio info "smb://${homelab_addrs}/${share}" >/dev/null 2>&1; then
         if (printf "%s\n\n%s\n" "${homelab_user}" "${homelab_passwd}" | \
             gio mount "smb://${homelab_addrs}/${share}" >/dev/null 2>&1); then
             ksdebug "mount '${share}': \e[32msuccess\e[00m!"
         else
-            kserr "mount '${share}': \e[31mfailure\e[00m!" || exit "${?}"
+            kserr "mount '${share}': \e[31mfailure\e[00m!"
         fi
-    done
-else
-    kserr "mount: already mounted!" || exit "${?}"
-fi
-
+    else
+        kserr "mount: share '${share}' is \e[31malready mounted\e[00m!"
+    fi
+done
