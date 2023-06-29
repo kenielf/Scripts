@@ -1,0 +1,69 @@
+#!/bin/sh
+# vi: ft=sh
+# Usage: sleep 2; ./syplh
+# Kenielf's Smart Youtube URL Player Helper
+
+# Play video function
+play_video() {
+    if [ -z "${1}" ]; then
+        kserr "No video url was passed!" "1" || exit "${?}"
+    fi
+
+    # Get url
+    url="$(echo "${1}" | tr -d '"')"
+
+    # Play
+    notify-send -t 5000 -i "mpv" \
+        "Playing from clipboard..." "${url}"
+    (mpv "${url}" >/dev/null 2>&1 || \
+        exit "Failed to play '${url}'!" "1" || exit "${?}") &
+}
+
+# Check dependencies
+ksdeps "mpv xclip xdotool"
+
+# Environment
+clipboard="$(xclip -o sel clipboard | sed -e 's/^/\"/g' -e 's/$/\"/g')"
+active_window="$(
+    unset DEBUG; \
+        xprop -id "$(xdotool getwindowfocus)" | \
+        grep -P 'WM_CLASS' | \
+        awk -F ', ' '{print $NF}' | \
+        tr -d '"' | tr '[:upper:]' '[:lower:]'
+)"
+
+# Check if the current clipboard contains a link
+if [ "${clipboard#*'youtube'}" != "${clipboard}" ]; then
+    ksdebug "Clipboard contains a \e[31myoutube\e[00m url, playing..."
+    play_video "${clipboard}"
+elif [ "${clipboard#*'twitch'}" != "${clipboard}" ]; then 
+    ksdebug "Clipboard contains a \e[34mtwitch\e[00m url, playing..."
+    play_video "${clipboard}"
+else
+    # Exit if browser is not accepted
+    # TODO: add support for chromium
+    if [ "${active_window#*'firefox'}" = "${active_window}" ]; then
+        kserr "No valid windows to steal url from!" "1" || exit "${?}"
+    fi
+
+    # Select url in browser
+    ksdebug "Stealing url from browser..."
+    (unset DEBUG; xdotool getactivewindow \
+        key ctrl+l \
+        sleep 1 key ctrl+c \
+        key F6 sleep 1)
+    
+    # Reset clipboard
+    clipboard="$(xclip -o sel clipboard | sed -e 's/^/\"/g' -e 's/$/\"/g')"
+
+    if [ "${clipboard#*'youtube'}" != "${clipboard}" ]; then
+        ksdebug "Clipboard contains a \e[31myoutube\e[00m url, playing..."
+        play_video "${clipboard}"
+    elif [ "${clipboard#*'twitch'}" != "${clipboard}" ]; then 
+        ksdebug "Clipboard contains a \e[34mtwitch\e[00m url, playing..."
+        play_video "${clipboard}"
+    else
+        kserr "Clipboard does not contain a valid url!" "1" || exit "${?}"
+    fi
+fi
+
