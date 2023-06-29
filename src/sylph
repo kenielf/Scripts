@@ -16,7 +16,7 @@ play_video() {
     notify-send -t 5000 -i "mpv" \
         "Playing from clipboard..." "${url}"
     (mpv "${url}" >/dev/null 2>&1 || \
-        exit "Failed to play '${url}'!" "1" || exit "${?}") &
+        kserr "Failed to play '${url}'!" "1" || exit "${?}") &
 }
 
 # Check dependencies
@@ -48,13 +48,13 @@ else
 
     # Select url in browser
     ksdebug "Stealing url from browser..."
-    (unset DEBUG; xdotool getactivewindow \
-        key ctrl+l \
+    (unset DEBUG; xdotool \
+        sleep 1 key ctrl+l \
         sleep 1 key ctrl+c \
-        key F6 sleep 1)
+        key F6)
     
     # Reset clipboard
-    clipboard="$(xclip -o sel clipboard | sed -e 's/^/\"/g' -e 's/$/\"/g')"
+    clipboard="$(xclip -o sel clipboard | tr -d '"')"
 
     if [ "${clipboard#*'youtube'}" != "${clipboard}" ]; then
         ksdebug "Clipboard contains a \e[31myoutube\e[00m url, playing..."
