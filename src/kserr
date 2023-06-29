@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+# vi: ft=sh
+# Usage: kerr "section: message" "optional exit code"
+# to make the error fatal, add: || exit "${?}"
+
+# Check mandatory first argument (error message)
+if [ -z "${1}" ]; then
+    kserr "syntax: error message must not be empty!" "1" || exit "${?}"
+fi
+
+# Check if the secondary argument exists
+if [ -z "${2}" ]; then
+    exit_c="1"
+else
+    # Check if the value is a number
+    if ! (echo "${2}" | grep -vP '^(?:[-+])?[0-9]+$' >/dev/null 2>&1); then
+        exit_c="${2}"
+    else
+        kserr "syntax: error code must be an integer!" "1" || exit "${?}"
+    fi
+fi
+
+# Raise error
+1>&2 printf "\e[31m[ERROR]\e[00m %b\n" "${1}"
+exit "${exit_c}"
+

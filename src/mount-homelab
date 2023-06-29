@@ -1,0 +1,76 @@
+#!/usr/bin/env sh
+# vi: ft=sh
+# Usage: mount-homelab
+
+# Check for dependencies
+ksdeps "gpg nmcli ping gio" || exit "${?}"
+
+# Check for the homelab credentials directory
+base_dir="${HOME}/.secrets/homelab"
+if [ ! -d "${base_dir}" ]; then
+    kserr "credentials: missing homelab folder!" || exit "${?}"
+else
+    # Set the credentials according to their respective files
+    [ -f "${base_dir}/allowed_ssids" ] && \
+        allowed_ssids="$(cat "${base_dir}/allowed_ssids")" || \
+        kserr "credentials: failed to set acceptable ssids!" "1" || exit "${?}"
+
+    [ -f "${base_dir}/ip_address" ] && \
+        homelab_addrs="$(cat "${base_dir}/ip_address")" || \
+        kserr "credentials: failed to set homelab address!" "1" || exit "${?}"
+
+    [ -f "${base_dir}/share_name" ] && \
+        homelab_share="$(cat "${base_dir}/share_name")" || \
+        kserr "credentials: failed to set smb share names!" "1" || exit "${?}"
+
+    [ -f "${base_dir}/cred/user" ] && \
+        homelab_user="$(cat "${base_dir}/cred/user")" || \
+        kserr "credentials: failed to get smb username!" "1" || exit "${?}"
+
+    [ -f "${base_dir}/cred/password" ] && \
+        homelab_passwd="$(gpg -dq "${base_dir}/cred/password")" || \
+        kserr "credentials: failed to get smb password!" "1" || exit "${?}"
+    ksdebug "credentials: all necessary credentials have been \e[32mset\e[00m!"
+fi
+
+# Check for acceptable networks
+cur_networks="$(nmcli -t -f NAME c s -a 2>/dev/null)" || \
+    kserr "network: failed to get current active networks!" "1" || exit "${?}"
+
+for network in ${cur_networks}; do
+    ksdebug "network: trying to match SSIDs to '${network}'"
+    for ssid in ${allowed_ssids}; do
+        if [ "${network}" = "${ssid}" ]; then
+            ksdebug "network: matched SSIDs successfully"
+            ssid_matched="1"
+        fi
+    done
+    if [ "${ssid_matched}" = "1" ]; then
+        break
+    fi
+done
+
+if [ -z "${ssid_matched}" ]; then
+    kserr "network: failed to match ssid, exiting!" || exit "${?}"
+fi
+
+# Check if ip address is reachable
+if ! (ping -c 4 -i 0.10 -W 2 "${homelab_addrs}" > /dev/null 2>&1); then
+    kserr "ip: could not resolve '${homelab_addrs}'!"
+else
+    ksdebug "ip: successfully reached '${homelab_addrs}'"
+fi
+
+# Mount homelab shares
+for share in ${homelab_share}; do
+    if ! gio info "smb://${homelab_addrs}/${share}" >/dev/null 2>&1; then
+        if (printf "%s\n\n%s\n" "${homelab_user}" "${homelab_passwd}" | \
+            gio mount "smb://${homelab_addrs}/${share}" >/dev/null 2>&1); then
+            ksdebug "mount '${share}': \e[32msuccess\e[00m!"
+        else
+            kserr "mount '${share}': \e[31mfailure\e[00m!"
+        fi
+    else
+        kserr "mount: share '${share}' is \e[31malready mounted\e[00m!"
+    fi
+done

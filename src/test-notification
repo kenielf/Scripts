@@ -1,2 +1,0 @@
-#!/bin/sh
-notify-send --urgency=normal --expire-time=6000 "Test notification" "This is the body of the text notification.\nby Kenielf."

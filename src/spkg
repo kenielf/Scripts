@@ -1,0 +1,92 @@
+#!/usr/bin/env sh
+# vi: ft=sh
+# Usage: spkg (operation) (packages)
+
+# Install packages function
+spkg_install() {
+    # Make sure arguments are passed through
+    if [ -z "${*}" ]; then
+        kserr "Install words must not be empty!" "!" || exit "${?}"
+    fi
+
+    # Install packages
+    ksdebug "Installing packages..."
+    paru --needed --skipreview --sudoloop --asexplicit -S "${@}"
+}
+
+# Uninstall packages function
+spkg_uninstall() {
+    # Make sure arguments are passed through
+    if [ -z "${*}" ]; then
+        kserr "Search terms must not be empty!" "1" || exit "${?}"
+    fi
+
+    # Remove packages
+    ksdebug "Removing packages..."
+    paru -Rns "${@}"
+}
+
+# Update all system packages function
+spkg_update() {
+    ksdebug "Updating packages..."
+    paru -Syu --noconfirm --nouseask --sudoloop && \
+        paccache -r -k 2 && \
+        [ -f "${HOME}/.config/update-hook.sh" ] && \
+            sh -c "${HOME}/.config/update-hook.sh"
+}
+
+# Search for remote packages function
+spkg_query() {
+    # Make sure arguments are passed through
+    if [ -z "${*}" ]; then
+        kserr "Search terms must not be empty!" "1" || exit "${?}"
+    fi
+
+    # Search for the packages
+    ksdebug "Searching packages..."
+    paru -Ss "${@}"
+}
+
+# List all installed packages function
+spkg_listall() {
+    ksdebug "Listing packages..."
+    pacman -Qq | \
+        fzf --no-sort --multi --track --cycle --scroll-off=3 \
+            --layout=reverse-list --preview 'pacman -Qi {}' \
+            --info=inline --prompt='Get package(s) > ' \
+            --color=light
+}
+
+# Check dependencies
+ksdeps "pacman paru paccache fzf"
+
+# Check arguments
+operation="${1}"
+
+# Make sure argument is not empty
+if [ -z "${operation}" ]; then
+    kserr "No argument was passed!" "1" || exit "${?}"
+fi
+shift  # ignore operation in args
+
+# Make sure argument is valid
+case "${operation}" in
+    # Install
+    "a" | "add")
+        spkg_install "${@}";;
+    # Uninstall
+    "r" | "rm" | "remove")
+        spkg_uninstall "${@}";;
+    # Update
+    "u" | "upd" | "update")
+        spkg_update;;
+    # Query
+    "q" | "qry" | "query")
+        spkg_query "${@}";;
+    # List
+    "l" | "lst" | "list")
+        spkg_listall;;
+    # Invalid
+    *)
+        kserr "Invalid argument!" "1" || exit "${?}";;
+esac
