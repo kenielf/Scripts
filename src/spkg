@@ -1,6 +1,17 @@
 #!/usr/bin/env sh
 # vi: ft=sh
 # Usage: spkg (operation) (packages)
+# Help function
+spkg_help() {
+    printf -- "Usage: spkg {option} {args}\n"
+    printf -- "--- Options ---\n"
+    printf -- "  a, add\t\t -> Install packages in {args}\n"
+    printf -- "  r, rm, remove\t\t -> Remove packages in {args}\n"
+    printf -- "  u, upd, update\t -> Update system packages\n"
+    printf -- "  q, qry, query\t\t -> Query packages that matches {args}\n"
+    printf -- "  l, lst, list\t\t -> List all system packages\n"
+    printf -- "  h, hlp, help\t\t -> Print usage function\n"
+}
 
 # Install packages function
 spkg_install() {
@@ -86,7 +97,13 @@ case "${operation}" in
     # List
     "l" | "lst" | "list")
         spkg_listall;;
+    # Help
+    "h" | "hlp" | "help")
+        spkg_help;;
     # Invalid
     *)
-        kserr "Invalid argument!" "1" || exit "${?}";;
+        kserr "Invalid argument!" "1"
+        code="${?}"
+        spkg_help
+        exit "${code}"
 esac
