@@ -55,7 +55,7 @@ spkg_query() {
 
     # Search for the packages
     ksdebug "Searching packages..."
-    paru -Ss "${@}"
+    paru -Ss "${@}" --color=always | less -R
 }
 
 # List all installed packages function
