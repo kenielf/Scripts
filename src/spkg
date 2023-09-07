@@ -40,10 +40,18 @@ spkg_uninstall() {
 # Update all system packages function
 spkg_update() {
     ksdebug "Updating packages..."
-    paru -Syu --noconfirm --nouseask --sudoloop && \
-        paccache -r -k 2 && \
+    # First, upgrade repo packages
+    paru -Syu --noconfirm --nouseask --sudoloop --repo && \
         [ -f "${HOME}/.config/update-hook.sh" ] && \
             sh -c "${HOME}/.config/update-hook.sh"
+
+    # Then, upgrade aur packages
+    paru -Syu --noconfirm --nouseask --sudoloop --aur && \
+        [ -f "${HOME}/.config/update-hook.sh" ] && \
+            sh -c "${HOME}/.config/update-hook.sh"
+
+    # Clear package cache
+    paccache -r -k 2
 }
 
 # Search for remote packages function
