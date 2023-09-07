@@ -76,6 +76,13 @@ spkg_listall() {
             --color=light
 }
 
+# Helper functions
+beep() {
+    if [ -n "${SPKG_BEEP}" ] && [ "${SPKG_BEEP}" = "1" ]; then
+        printf '\a'
+    fi
+}
+
 # Check dependencies
 ksdeps "pacman paru paccache fzf"
 
@@ -92,13 +99,19 @@ shift  # ignore operation in args
 case "${operation}" in
     # Install
     "a" | "add")
-        spkg_install "${@}";;
+        spkg_install "${@}"
+        beep
+        ;;
     # Uninstall
     "r" | "rm" | "remove")
-        spkg_uninstall "${@}";;
+        spkg_uninstall "${@}"
+        beep
+        ;;
     # Update
     "u" | "upd" | "update")
-        spkg_update;;
+        spkg_update
+        beep
+        ;;
     # Query
     "q" | "qry" | "query")
         spkg_query "${@}";;
