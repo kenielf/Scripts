@@ -43,6 +43,7 @@ for network in ${cur_networks}; do
         if [ "${network}" = "${ssid}" ]; then
             ksdebug "network: matched SSIDs successfully"
             ssid_matched="1"
+            break
         fi
     done
     if [ "${ssid_matched}" = "1" ]; then
