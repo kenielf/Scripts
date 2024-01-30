@@ -44,6 +44,11 @@ for network in ${cur_networks}; do
             ksdebug "network: matched SSIDs successfully"
             ssid_matched="1"
             break
+        # NOTE: Exception due to ethernet networks having generic names!
+        elif ! (echo "${network}" | grep -Pi "^wired connection [0-9]+$" 2>/dev/null); then
+            ksdebug "network: ethernect connection detected, attempting..."
+            ssid_matched="1"
+            break
         fi
     done
     if [ "${ssid_matched}" = "1" ]; then
